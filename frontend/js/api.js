@@ -1,3 +1,3 @@
-﻿// ⚠️ Actualizar esta URL después del despliegue en Railway
-const API_URL = "modulos-sistemas-informaticos-cea-production.up.railway.app";
+// API is served from the same origin now
+const API_URL = "";
 

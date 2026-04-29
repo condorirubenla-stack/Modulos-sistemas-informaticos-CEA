@@ -43,24 +43,20 @@ app.include_router(auth.router,         prefix="/auth",         tags=["Authentic
 app.include_router(modulos.router,      prefix="/modulos",      tags=["Modulos"])
 app.include_router(evaluaciones.router, prefix="/evaluaciones", tags=["Evaluaciones"])
 
-@app.get("/")
-def read_root():
-    db_status = "error"
-    try:
-        from database import get_db_connection
-        conn = get_db_connection()
-        if conn:
-            db_status = "connected"
-            conn.close()
-    except Exception as e:
-        db_status = str(e)
-    return {
-        "client":   "Sistemas Informaticos CEA",
-        "status":   "online",
-        "version":  "1.0.0 PRO",
-        "database": db_status == "connected",
-        "author":   "Antigravity AI"
-    }
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
+
+frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
+if os.path.exists(frontend_path):
+    app.mount("/static", StaticFiles(directory=frontend_path), name="static")
+
+    @app.get("/")
+    def read_root():
+        return RedirectResponse(url="/static/login.html")
+else:
+    @app.get("/")
+    def read_root():
+        return {"status": "backend_only", "message": "Frontend not found"}
 
 @app.get("/cargar-datos")
 def instalar_datos_iniciales():
