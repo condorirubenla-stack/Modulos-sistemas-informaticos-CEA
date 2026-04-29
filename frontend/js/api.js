@@ -1,3 +1,2 @@
-// API is served from the same origin now
-const API_URL = "";
+const API_URL = "https://modulos-sistemas-informaticos-cea-production.up.railway.app";
 
