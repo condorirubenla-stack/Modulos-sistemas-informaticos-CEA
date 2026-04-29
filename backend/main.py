@@ -53,8 +53,7 @@ from fastapi.responses import RedirectResponse
 
 # --- CONFIGURACIÓN DE RUTAS ---
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.dirname(BASE_DIR)
-frontend_path = os.path.join(PROJECT_ROOT, "frontend")
+frontend_path = os.path.join(BASE_DIR, "frontend")
 
 if os.path.exists(frontend_path):
     app.mount("/static", StaticFiles(directory=frontend_path), name="static")
@@ -65,13 +64,9 @@ if os.path.exists(frontend_path):
 else:
     @app.get("/")
     def read_root():
-        import os
         return {
-            "status": "backend_debug_v4", 
-            "message": "Checking /app contents", 
-            "cwd": os.getcwd(), 
-            "app_contents": os.listdir("/app") if os.path.exists("/app") else "APP_NOT_FOUND",
-            "backend_contents": os.listdir("/app/backend") if os.path.exists("/app/backend") else "BACKEND_NOT_FOUND"
+            "status": "error", 
+            "message": f"Frontend folder not found at {frontend_path}. Please check deployment."
         }
 
 @app.get("/cargar-datos")
