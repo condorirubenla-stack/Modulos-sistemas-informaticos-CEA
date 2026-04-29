@@ -51,7 +51,11 @@ app.include_router(evaluaciones.router, prefix="/evaluaciones", tags=["Evaluacio
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
-frontend_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "frontend")
+# --- CONFIGURACIÓN DE RUTAS ---
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(BASE_DIR)
+frontend_path = os.path.join(PROJECT_ROOT, "frontend")
+
 if os.path.exists(frontend_path):
     app.mount("/static", StaticFiles(directory=frontend_path), name="static")
 
@@ -63,12 +67,13 @@ else:
     def read_root():
         import os
         return {
-            "status": "backend_only", 
-            "message": "Frontend not found", 
+            "status": "backend_debug_v3", 
+            "message": "Frontend folder not found at expected path", 
             "cwd": os.getcwd(), 
-            "file": __file__, 
-            "frontend_path": frontend_path,
-            "root_contents": os.listdir(os.path.dirname(os.path.dirname(__file__))) if os.path.exists(os.path.dirname(os.path.dirname(__file__))) else []
+            "file_path": __file__, 
+            "abs_file_path": os.path.abspath(__file__),
+            "expected_frontend_path": frontend_path,
+            "root_contents": os.listdir(PROJECT_ROOT) if os.path.exists(PROJECT_ROOT) else "ROOT_NOT_FOUND"
         }
 
 @app.get("/cargar-datos")
