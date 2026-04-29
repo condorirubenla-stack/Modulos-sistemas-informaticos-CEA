@@ -67,13 +67,11 @@ else:
     def read_root():
         import os
         return {
-            "status": "backend_debug_v3", 
-            "message": "Frontend folder not found at expected path", 
+            "status": "backend_debug_v4", 
+            "message": "Checking /app contents", 
             "cwd": os.getcwd(), 
-            "file_path": __file__, 
-            "abs_file_path": os.path.abspath(__file__),
-            "expected_frontend_path": frontend_path,
-            "root_contents": os.listdir(PROJECT_ROOT) if os.path.exists(PROJECT_ROOT) else "ROOT_NOT_FOUND"
+            "app_contents": os.listdir("/app") if os.path.exists("/app") else "APP_NOT_FOUND",
+            "backend_contents": os.listdir("/app/backend") if os.path.exists("/app/backend") else "BACKEND_NOT_FOUND"
         }
 
 @app.get("/cargar-datos")
