@@ -16,6 +16,11 @@ app = FastAPI(title="Sistemas Informaticos CEA API", description="LMS Backend - 
 def startup_event():
     print("Servidor Sistemas Informaticos CEA iniciado.")
     try:
+        init_db()
+        print("Base de datos inicializada.")
+    except Exception as e:
+        print(f"Error init_db en startup: {e}")
+    try:
         from database import get_db_connection
         conn = get_db_connection()
         cur = conn.cursor()
