@@ -55,7 +55,7 @@ def seed_data():
                     "Instalación de sistemas operativos y software",
                     "Internet de las cosas (IoT)",
                 ]),
-                ("EMERGENTE I – INTELIGENCIA ARTIFICIAL BÁSICA", [
+                ("EMERGENTE I (INTELIGENCIA ARTIFICIAL BÁSICA)", [
                     "Fundamentos de la Inteligencia Artificial",
                     "Uso incorrecto de la IA en la informática",
                     "Limitaciones tecnológicas de la IA actual",
@@ -88,8 +88,8 @@ def seed_data():
                     "Mantenimiento correctivo",
                     "Principios de electrónica aplicados",
                 ]),
-                ("EMERGENTE II – INGENIERÍA DE PROMPTS BÁSICOS", [
-                    "Fundamentos de la Ingeniería de Prompts",
+                ("EMERGENTE II (PROMPTS BÁSICOS)", [
+                    "Fundamentos de Prompts",
                     "Prompts para tareas ofimáticas y soporte técnico",
                     "Errores comunes en Modelos de Lenguaje",
                     "Buenas prácticas y refinamiento",
