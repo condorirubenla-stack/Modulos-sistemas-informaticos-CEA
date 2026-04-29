@@ -61,7 +61,15 @@ if os.path.exists(frontend_path):
 else:
     @app.get("/")
     def read_root():
-        return {"status": "backend_only", "message": "Frontend not found"}
+        import os
+        return {
+            "status": "backend_only", 
+            "message": "Frontend not found", 
+            "cwd": os.getcwd(), 
+            "file": __file__, 
+            "frontend_path": frontend_path,
+            "root_contents": os.listdir(os.path.dirname(os.path.dirname(__file__))) if os.path.exists(os.path.dirname(os.path.dirname(__file__))) else []
+        }
 
 @app.get("/cargar-datos")
 def instalar_datos_iniciales():
