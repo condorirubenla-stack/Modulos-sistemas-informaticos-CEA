@@ -190,7 +190,7 @@ function renderMods(idx) {
   area.innerHTML = sem.mods.map((modName, mi) => `
     <div class="mod-card" id="mc-${mi}">
       <div class="mod-header" onclick="toggleMod(${mi}, '${modName.replace(/'/g,"\\'")}')">
-        <div class="mod-name"><span>${mi+1}.</span> ${modName}</div>
+        <div class="mod-name"><span>Módulo ${mi+1}:</span> ${modName}</div>
         <span style="color:var(--m)">▼</span>
       </div>
       <div class="mod-body" id="mb-${mi}">

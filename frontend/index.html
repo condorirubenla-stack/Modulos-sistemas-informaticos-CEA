@@ -104,7 +104,7 @@ function render() {
           ${sem.modulos.map((mod, mi) => `
             <div class="mod-card" id="mc-${li}-${si}-${mi}">
               <div class="mod-header" onclick="toggle('mc-${li}-${si}-${mi}')">
-                <div class="mod-name">Módulo ${mi+1}: ${mod.n}</div>
+                <div class="mod-name"><span style="color:var(--a2)">Módulo ${mi+1}:</span> ${mod.n}</div>
                 <span>▼</span>
               </div>
               <div class="mod-body">
