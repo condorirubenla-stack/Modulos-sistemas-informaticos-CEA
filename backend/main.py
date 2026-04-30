@@ -51,23 +51,13 @@ app.include_router(evaluaciones.router, prefix="/evaluaciones", tags=["Evaluacio
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 
-# --- CONFIGURACIÓN DE RUTAS ---
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-frontend_path = os.path.join(BASE_DIR, "frontend")
-
-if os.path.exists(frontend_path):
-    app.mount("/static", StaticFiles(directory=frontend_path), name="static")
-
-    @app.get("/")
-    def read_root():
-        return RedirectResponse(url="/static/login.html")
-else:
-    @app.get("/")
-    def read_root():
-        return {
-            "status": "error", 
-            "message": f"Frontend folder not found at {frontend_path}. Please check deployment."
-        }
+@app.get("/")
+def read_root():
+    return {
+        "status": "online",
+        "message": "Sistemas Informaticos CEA API is running",
+        "docs": "/docs"
+    }
 
 @app.get("/cargar-datos")
 def instalar_datos_iniciales():

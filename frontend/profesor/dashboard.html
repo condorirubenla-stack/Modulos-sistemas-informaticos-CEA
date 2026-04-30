@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sistemas Informáticos CEA – Mi Curso</title>
+<title>Sistemas Informáticos CEA – Panel Profesor</title>
 <!-- PWA Meta Tags -->
 <link rel="manifest" href="../instalar/manifest.json">
 <meta name="theme-color" content="#0ea5e9">
@@ -51,14 +51,15 @@ header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify
 .tema-content{display:none}
 .tema-content.active{display:block}
 
-/* GRID MATERIALES ESTUDIANTE */
-.mat-grid{display:grid;grid-template-columns:repeat(2, 1fr);gap:.8rem}
-.mat-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(255,255,255,.03);border:1px solid var(--b);border-radius:12px;padding:1.5rem 1rem;text-decoration:none;color:var(--m);transition:.2s;gap:.6rem;text-align:center}
-.mat-btn:hover{background:rgba(255,255,255,.06)}
-.mat-btn.active-mat{background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.3);color:var(--t)}
-.mat-btn.active-mat:hover{background:rgba(56,189,248,.15)}
-.mat-icon{font-size:2rem}
-.mat-title{font-size:.75rem;font-weight:800;text-transform:uppercase}
+/* INPUTS MATERIAL */
+.mat-list{display:flex;flex-direction:column;gap:1rem}
+.mat-item{background:rgba(0,0,0,.2);padding:1rem;border-radius:12px;border:1px solid var(--b)}
+.mat-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem}
+.mat-icon{font-size:1.1rem}
+.mat-title{font-size:.75rem;font-weight:800;color:var(--a2);text-transform:uppercase}
+.slot-input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--b);border-radius:8px;padding:.7rem;color:var(--t);font-size:.8rem;margin-bottom:.6rem;outline:none;transition:.2s}
+.slot-input:focus{border-color:var(--a)}
+.btn-save{background:var(--a);color:#fff;border:none;padding:.6rem 1.2rem;border-radius:8px;font-weight:800;cursor:pointer;font-size:.75rem;width:100%}
 
 /* Cambio contraseña */
 .pass-card{background:var(--card);border:1px solid var(--b);border-radius:16px;padding:1.2rem;margin-top:2rem}
@@ -66,17 +67,14 @@ header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify
 .pass-input{width:100%;background:rgba(255,255,255,.05);border:1px solid var(--b);border-radius:8px;padding:.6rem;color:var(--t);font-size:.82rem;margin-bottom:.6rem;outline:none}
 .btn-pass{width:100%;background:var(--a);color:#fff;border:none;padding:.7rem;border-radius:8px;font-weight:800;cursor:pointer}
 
+/* Toast */
 #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);background:#0f172a;border:1.5px solid var(--a);padding:.8rem 1.6rem;border-radius:12px;font-size:.82rem;font-weight:700;display:none;z-index:999;white-space:nowrap;text-align:center}
-
-@media(max-width: 480px) {
-    .mat-btn { padding: 1.2rem .5rem; }
-}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="hdr-name" id="hdr-name">ESTUDIANTE</div>
+  <div class="hdr-name" id="hdr-name">PROFESOR</div>
   <div class="hdr-badge" id="hdr-badge">Cargando...</div>
   <button class="btn-out" id="btn-logout">Salir</button>
 </header>
@@ -88,7 +86,7 @@ header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify
 
 <div class="wrap">
   <div class="sem-tabs" id="sem-tabs"></div>
-  <div id="mods-area"><p style="color:var(--m);text-align:center;padding:2rem">Cargando curso...</p></div>
+  <div id="mods-area"><p style="color:var(--m);text-align:center;padding:2rem">Cargando módulos...</p></div>
 
   <!-- Cambio contraseña -->
   <div class="pass-card">
@@ -96,14 +94,14 @@ header{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify
     <input class="pass-input" type="password" id="np1" placeholder="Nueva contraseña (mín. 4 caracteres)">
     <input class="pass-input" type="password" id="np2" placeholder="Repetir contraseña">
     <button class="btn-pass" onclick="cambiarPass()">Actualizar Contraseña</button>
-    <div id="pass-msg" style="font-size:.72rem;margin-top:.4rem;text-align:center"></div>
+    <div id="pass-msg" style="font-size:.72rem;margin-top:.5rem;text-align:center"></div>
   </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
-const API   = "";
+const API = "https://modulos-sistemas-informaticos-cea-api.up.railway.app";
 const TOKEN = localStorage.getItem('token');
 
 const MALLA = {
@@ -124,18 +122,19 @@ const TIPOS = [
   {id:'presentacion', lbl:'Presentación', ico:'📊'},
   {id:'audio', lbl:'Audio', ico:'🎵'},
   {id:'video', lbl:'Video', ico:'🎥'},
-  {id:'evaluacion', lbl:'Evaluación', ico:'✅'}
+  {id:'evaluacion', lbl:'Evaluación', ico:'📝'}
 ];
 
 let modNameToId = {};
-let NIVEL = 'Básico';
-let SEM_IDX = 0;
+let NIVEL = "";
+let SEMESTRE_IDX = 0;
 
+// ── INIT
 window.addEventListener('DOMContentLoaded', async () => {
   const u = JSON.parse(localStorage.getItem('user') || '{}');
-  if (!TOKEN) { window.location.replace('../index.html'); return; }
+  if (!TOKEN || u.rol !== 'profesor') { window.location.replace('../index.html'); return; }
 
-  const nombre = (u.nombre || 'Estudiante').split(' ')[0].toUpperCase();
+  const nombre = (u.nombre || 'Profesor').split(' ')[0].toUpperCase();
   document.getElementById('hdr-name').textContent = nombre;
   document.getElementById('welcome-title').textContent = `¡Hola, ${nombre}!`;
   
@@ -144,17 +143,18 @@ window.addEventListener('DOMContentLoaded', async () => {
   NIVEL = detectarNivel(nivelVisual);
 
   document.getElementById('btn-logout').addEventListener('click', () => {
-    localStorage.clear(); window.location.replace('../index.html');
+    localStorage.clear();
+    window.location.replace('../index.html');
   });
 
   try {
     const r = await fetch(API + '/modulos/');
     const d = await r.json();
     (d.modulos || []).forEach(m => { modNameToId[m.nombre.trim()] = m.id; });
-  } catch {}
+  } catch(e) { console.error(e); }
 
-  renderTabs();
-  renderMods(0);
+  renderSemTabs();
+  renderModulos(SEMESTRE_IDX);
 });
 
 function detectarNivel(s) {
@@ -166,27 +166,27 @@ function detectarNivel(s) {
   return 'Básico';
 }
 
-function renderTabs() {
-  const sems  = MALLA[NIVEL] || MALLA['Básico'];
-  const tabEl = document.getElementById('sem-tabs');
-  if (sems.length <= 1) { tabEl.style.display = 'none'; return; }
-  tabEl.innerHTML = sems.map((s, i) =>
-    `<button class="sem-btn ${i===0?'active':''}" onclick="switchSem(${i},this)">${s.sem.split(' – ')[0]}</button>`
-  ).join('');
+function renderSemTabs() {
+  const sems = MALLA[NIVEL] || MALLA['Básico'];
+  const tabsEl = document.getElementById('sem-tabs');
+  if (sems.length <= 1) { tabsEl.style.display = 'none'; return; }
+  tabsEl.innerHTML = sems.map((s, i) => `
+    <button class="sem-btn ${i===0?'active':''}" onclick="switchSem(${i}, this)">${s.sem.split(' – ')[0]}</button>
+  `).join('');
 }
 
 function switchSem(idx, btn) {
   document.querySelectorAll('.sem-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  SEM_IDX = idx;
-  renderMods(idx);
+  SEMESTRE_IDX = idx;
+  renderModulos(idx);
 }
 
-function renderMods(idx) {
+function renderModulos(semIdx) {
   const sems = MALLA[NIVEL] || MALLA['Básico'];
-  const sem  = sems[idx] || sems[0];
+  const sem  = sems[semIdx] || sems[0];
   const area = document.getElementById('mods-area');
-  
+
   area.innerHTML = sem.mods.map((modName, mi) => `
     <div class="mod-card" id="mc-${mi}">
       <div class="mod-header" onclick="toggleMod(${mi}, '${modName.replace(/'/g,"\\'")}')">
@@ -200,19 +200,36 @@ function renderMods(idx) {
         <div class="tema-containers">
           ${[1,2,3,4].map(t => `
             <div class="tema-content ${t===1?'active':''}" id="tcont-${mi}-${t}">
-              <div class="mat-grid" id="mgrid-${mi}-${t}">
+              <div class="mat-list">
                 ${TIPOS.map(tipo => `
-                  <div class="mat-btn" id="btn-${mi}-${t}-${tipo.id}">
-                    <div class="mat-icon">${tipo.ico}</div>
-                    <div class="mat-title">${tipo.lbl}</div>
+                  <div class="mat-item">
+                    <div class="mat-header">
+                      <span class="mat-icon">${tipo.ico}</span>
+                      <span class="mat-title">${tipo.lbl}</span>
+                    </div>
+                    <input class="slot-input" type="url" id="sl-${mi}-${t}-${tipo.id}" placeholder="Enlace...">
+                    <button class="btn-save" onclick="guardar(${mi},${t},'${tipo.id}')">Guardar</button>
                   </div>
                 `).join('')}
+                
+                <!-- Extras Dinámicos -->
+                <div id="extras-container-${mi}-${t}"></div>
+                <div class="mat-item" style="background: rgba(14, 165, 233, 0.1); border-style: dashed;">
+                  <div class="mat-header">
+                    <span class="mat-icon">➕</span>
+                    <span class="mat-title">Agregar Material Extra</span>
+                  </div>
+                  <input class="slot-input" type="text" id="extra-tit-${mi}-${t}" placeholder="Título (Ej: PDF Adicional)" style="margin-bottom: .3rem">
+                  <input class="slot-input" type="url" id="extra-url-${mi}-${t}" placeholder="Enlace...">
+                  <button class="btn-save" style="background: var(--a2); color: var(--dark)" onclick="guardarExtra(${mi},${t})">Guardar Extra</button>
+                </div>
               </div>
             </div>
           `).join('')}
         </div>
       </div>
-    </div>`).join('');
+    </div>
+  `).join('');
 }
 
 function switchTema(mi, t) {
@@ -220,6 +237,7 @@ function switchTema(mi, t) {
     document.getElementById(`tbtn-${mi}-${i}`).classList.remove('active');
     document.getElementById(`tcont-${mi}-${i}`).classList.remove('active');
   }
+  // Activar el seleccionado
   document.getElementById(`tbtn-${mi}-${t}`).classList.add('active');
   document.getElementById(`tcont-${mi}-${t}`).classList.add('active');
 }
@@ -229,45 +247,81 @@ async function toggleMod(mi, modName) {
   card.classList.toggle('open');
   if (!card.classList.contains('open')) return;
 
-  const modId = modNameToId[modName] || Object.entries(modNameToId).find(([k]) => k.toLowerCase().includes(modName.toLowerCase().slice(0,8)))?.[1];
-
+  const modId = modNameToId[modName] || Object.entries(modNameToId).find(([k])=>k.toLowerCase().includes(modName.toLowerCase().slice(0,8)))?.[1];
   if (!modId) return;
 
   try {
     const r = await fetch(API + '/modulos/' + modId + '/contenidos');
     const d = await r.json();
-    const items = (d.contenidos || []).filter(c => c.url);
-
-    items.forEach(c => {
-      // Intentar encontrar el botón base
-      const btn = document.getElementById(`btn-${mi}-${c.tema_num}-${c.tipo}`);
-      
-      if(btn) {
-        // Es un material base (Teoría, Presentación, etc.)
-        btn.classList.add('active-mat');
-        btn.href = c.url;
-        btn.target = "_blank";
-        if(btn.tagName.toLowerCase() !== 'a') {
-          btn.outerHTML = btn.outerHTML.replace(/^<div/, '<a').replace(/<\/div>$/, '</a>');
-        }
+    (d.contenidos || []).forEach(c => {
+      if (TIPOS.find(x => x.id === c.tipo)) {
+        const el = document.getElementById(`sl-${mi}-${c.tema_num}-${c.tipo}`);
+        if (el && c.url) el.value = c.url;
       } else {
-        // Es un material extra, crearlo dinámicamente
-        const grid = document.getElementById(`mgrid-${mi}-${c.tema_num}`);
-        if(grid && !document.getElementById(`btn-extra-${c.id}`)) {
-          const a = document.createElement('a');
-          a.href = c.url;
-          a.target = "_blank";
-          a.className = 'mat-btn active-mat';
-          a.id = `btn-extra-${c.id}`;
-          a.innerHTML = `
-            <div class="mat-icon">🔗</div>
-            <div class="mat-title">${c.titulo}</div>
-          `;
-          grid.appendChild(a);
-        }
+        // Es un extra
+        if (c.url) renderExtraUI(mi, c.tema_num, c.tipo, c.titulo, c.url);
       }
     });
   } catch {}
+}
+
+function renderExtraUI(mi, t, tipoId, titulo, url) {
+  const container = document.getElementById(`extras-container-${mi}-${t}`);
+  if (!container) return;
+  // Solo agregar si no existe ya para no duplicar en UI
+  if (document.getElementById(`sl-${mi}-${t}-${tipoId}`)) return;
+
+  const div = document.createElement('div');
+  div.className = 'mat-item';
+  div.innerHTML = `
+    <div class="mat-header">
+      <span class="mat-icon">🔗</span>
+      <span class="mat-title">${titulo}</span>
+    </div>
+    <input class="slot-input" type="url" id="sl-${mi}-${t}-${tipoId}" value="${url}" placeholder="Enlace...">
+    <button class="btn-save" onclick="guardar(${mi},${t},'${tipoId}', '${titulo}')">Actualizar Extra</button>
+  `;
+  container.appendChild(div);
+}
+
+async function guardarExtra(mi, t) {
+  const titInput = document.getElementById(`extra-tit-${mi}-${t}`);
+  const urlInput = document.getElementById(`extra-url-${mi}-${t}`);
+  const titulo = titInput.value.trim() || 'Material Extra';
+  const url = urlInput.value.trim();
+  if (!url) { showToast('⚠️ Ingresa un enlace'); return; }
+  
+  // Generar un ID único para el custom tipo
+  const tipoId = 'custom_' + Date.now();
+  await guardar(mi, t, tipoId, titulo, url);
+  
+  // Limpiar form de extras y renderizar nuevo
+  titInput.value = '';
+  urlInput.value = '';
+  renderExtraUI(mi, t, tipoId, titulo, url);
+}
+
+async function guardar(mi, t, tipo, overrideTitle, overrideUrl) {
+  const sems = MALLA[NIVEL] || MALLA['Básico'];
+  const modName = sems[SEMESTRE_IDX].mods[mi];
+  const url = overrideUrl || document.getElementById(`sl-${mi}-${t}-${tipo}`).value.trim();
+  if (!url) { showToast('⚠️ Ingresa un enlace'); return; }
+
+  let modId = modNameToId[modName] || Object.entries(modNameToId).find(([k])=>k.toLowerCase().includes(modName.toLowerCase().slice(0,8)))?.[1];
+
+  if (!modId) { showToast('⚠️ Módulo no encontrado. Ejecuta /cargar-datos'); return; }
+
+  const tituloFinal = overrideTitle || TIPOS.find(x=>x.id===tipo)?.lbl || 'Extra';
+
+  try {
+    const r = await fetch(API + '/modulos/contenido', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ modulo_id: modId, tipo, titulo: tituloFinal, url, tema_num: t })
+    });
+    if (r.ok) { showToast('✅ Guardado correctamente'); }
+    else { showToast('❌ Error al guardar'); }
+  } catch { showToast('❌ Error de conexión'); }
 }
 
 async function cambiarPass() {
@@ -278,8 +332,8 @@ async function cambiarPass() {
   if (p1 !== p2)      { msg.style.color='#f87171'; msg.textContent='Las contraseñas no coinciden'; return; }
   try {
     const r = await fetch(API + '/auth/update-password', {
-      method:'PUT',
-      headers:{ Authorization:'Bearer '+TOKEN, 'Content-Type':'application/json' },
+      method: 'PUT',
+      headers: { Authorization: 'Bearer ' + TOKEN, 'Content-Type': 'application/json' },
       body: JSON.stringify({ new_password: p1 })
     });
     if (r.ok) {
@@ -287,6 +341,12 @@ async function cambiarPass() {
       document.getElementById('np1').value=''; document.getElementById('np2').value='';
     } else { msg.style.color='#f87171'; msg.textContent='Error al actualizar'; }
   } catch { msg.style.color='#f87171'; msg.textContent='Error de conexión'; }
+}
+
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 2500);
 }
 
 if ('serviceWorker' in navigator) {
@@ -301,4 +361,5 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+
 
