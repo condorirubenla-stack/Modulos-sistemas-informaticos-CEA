@@ -1,2 +1,2 @@
-const API_URL = "https://modulos-sistemas-informaticos-cea-api.up.railway.app";
+const API_URL = "https://modulos-cea-backend.up.railway.app";
 
