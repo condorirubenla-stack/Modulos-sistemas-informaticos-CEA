@@ -108,7 +108,7 @@ function render() {
                 <span>▼</span>
               </div>
               <div class="mod-body">
-                ${mod.t.map((t,ti) => `<div class="topic-item">📌 Tema ${ti+1}: ${t}</div>`).join('')}
+                ${mod.t.map((t,ti) => `<div class="topic-item">📌 <span style="color:var(--a2)">Tema ${ti+1}:</span> ${t}</div>`).join('')}
                 <span class="locked">🔒 Inicia sesión para ver el material</span>
               </div>
             </div>

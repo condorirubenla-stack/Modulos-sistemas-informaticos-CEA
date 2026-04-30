@@ -195,7 +195,7 @@ function renderModulos(semIdx) {
       </div>
       <div class="mod-body" id="mb-${mi}">
         <div class="tema-tabs">
-          ${[1,2,3,4].map(t => `<button class="tema-btn ${t===1?'active':''}" onclick="switchTema(${mi}, ${t})" id="tbtn-${mi}-${t}">Tema ${t}</button>`).join('')}
+          ${[1,2,3,4].map(t => `<button class="tema-btn ${t===1?'active':''}" onclick="switchTema(${mi}, ${t})" id="tbtn-${mi}-${t}"><span style="color:var(--a2)">Tema ${t}:</span></button>`).join('')}
         </div>
         <div class="tema-containers">
           ${[1,2,3,4].map(t => `
